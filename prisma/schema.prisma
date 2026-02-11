@@ -1,6 +1,5 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -8,16 +7,17 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  last_name  String   @db.VarChar(50)
-  first_name String   @db.VarChar(50)
-  email      String   @unique @db.VarChar(100)
-  password   String   @db.VarChar(255)
-  isSuspend  Boolean  @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime
+  id         String          @id @default(uuid())
+  first_name String          @db.VarChar(50)
+  last_name  String          @db.VarChar(50)
+  email      String          @unique @db.VarChar(100)
+  password   String          @db.VarChar(255)
+  isSuspend  Boolean         @default(false)
+  created_at DateTime        @default(now())
+  updated_at DateTime        @updatedAt
   roleId     String
-  role       Role     @relation(fields: [roleId], references: [id])
+  role       Role            @relation(fields: [roleId], references: [id])
+  favorites  User_Activity[]
 }
 
 model Role {
@@ -27,16 +27,27 @@ model Role {
 }
 
 model Activity {
-  id          String        @id @default(uuid())
-  title       String        @db.VarChar(100)
-  description String        @db.VarChar(155)
+  id          String          @id @default(uuid())
+  title       String          @db.VarChar(100)
+  description String          @db.VarChar(155)
   content     String
-  url         String        @db.VarChar(255)
-  isSuspend   Boolean       @default(false)
-  created_at  DateTime      @default(now())
+  url         String          @db.VarChar(255)
+  isSuspend   Boolean         @default(false)
+  created_at  DateTime        @default(now())
   updated_at  DateTime
   typeId      String
-  type        Type_Activity @relation(fields: [typeId], references: [id])
+  type        Type_Activity   @relation(fields: [typeId], references: [id])
+  favoritedBy User_Activity[]
+}
+
+model User_Activity {
+  id         String   @id @default(uuid())
+  userId     String
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, activityId])
 }
 
 model Type_Activity {
@@ -58,8 +69,8 @@ model Theme_Menu {
   id          String    @id @default(uuid())
   name        String    @db.VarChar(50)
   ressourceId String
-  ressource   Ressource @relation(fields: [ressourceId], references: [id])
   menus       Menu[]
+  ressource   Ressource @relation(fields: [ressourceId], references: [id])
 }
 
 model Ressource {
@@ -71,9 +82,9 @@ model Ressource {
   created_at     DateTime       @default(now())
   updated_at     DateTime
   typeId         String
-  type           Type_Ressource @relation(fields: [typeId], references: [id])
   illustrationId String
   illustration   Illustration   @relation(fields: [illustrationId], references: [id])
+  type           Type_Ressource @relation(fields: [typeId], references: [id])
   themeMenus     Theme_Menu[]
 }
 
