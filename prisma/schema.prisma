@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id         String   @id @default(uuid())
+  last_name  String   @db.VarChar(50)
+  first_name String   @db.VarChar(50)
+  email      String   @unique @db.VarChar(100)
+  password   String   @db.VarChar(255)
+  isSuspend  Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime
+  roleId     String
+  role       Role     @relation(fields: [roleId], references: [id])
+}
+
+model Role {
+  id    String @id @default(uuid())
+  name  String @db.VarChar(40)
+  users User[]
+}
+
+model Activity {
+  id          String        @id @default(uuid())
+  title       String        @db.VarChar(100)
+  description String        @db.VarChar(155)
+  content     String
+  url         String        @db.VarChar(255)
+  isSuspend   Boolean       @default(false)
+  created_at  DateTime      @default(now())
+  updated_at  DateTime
+  typeId      String
+  type        Type_Activity @relation(fields: [typeId], references: [id])
+}
+
+model Type_Activity {
+  id         String     @id @default(uuid())
+  name       String     @db.VarChar(50)
+  activities Activity[]
+}
+
+model Menu {
+  id            String     @id @default(uuid())
+  name          String     @db.VarChar(50)
+  display_order Int
+  isVisible     Boolean    @default(true)
+  themeId       String
+  theme         Theme_Menu @relation(fields: [themeId], references: [id])
+}
+
+model Theme_Menu {
+  id          String    @id @default(uuid())
+  name        String    @db.VarChar(50)
+  ressourceId String
+  ressource   Ressource @relation(fields: [ressourceId], references: [id])
+  menus       Menu[]
+}
+
+model Ressource {
+  id             String         @id @default(uuid())
+  title          String         @db.VarChar(100)
+  description    String         @db.VarChar(155)
+  content        String
+  url            String         @db.VarChar(255)
+  created_at     DateTime       @default(now())
+  updated_at     DateTime
+  typeId         String
+  type           Type_Ressource @relation(fields: [typeId], references: [id])
+  illustrationId String
+  illustration   Illustration   @relation(fields: [illustrationId], references: [id])
+  themeMenus     Theme_Menu[]
+}
+
+model Type_Ressource {
+  id         String      @id @default(uuid())
+  name       String      @db.VarChar(50)
+  ressources Ressource[]
+}
+
+model Illustration {
+  id         String      @id @default(uuid())
+  url        String      @db.VarChar(255)
+  ressources Ressource[]
+}
