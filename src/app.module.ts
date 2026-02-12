@@ -4,6 +4,7 @@ import { PrismaModule } from 'prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ActivitiesModule } from './modules/activities/activities.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -14,6 +15,7 @@ import { UsersModule } from './modules/users/users.module';
       envFilePath: '.env',
     }),
     PrismaModule,
+    AuthModule,
     UsersModule,
     RolesModule,
     ActivitiesModule,
