@@ -16,7 +16,7 @@ model User {
   first_name String          @db.VarChar(50)
   last_name  String          @db.VarChar(50)
   email      String          @unique @db.VarChar(100)
-  password   String          // Nouveau champ pour l'auth locale
+  password   String
   isSuspend  Boolean         @default(false)
   role       Role            @default(MEMBER)
   favorites  User_Activity[]
@@ -52,21 +52,13 @@ model Type_Activity {
   activities Activity[]
 }
 
-model Menu {
-  id            String     @id @default(uuid())
-  name          String     @db.VarChar(50)
-  display_order Int
-  isVisible     Boolean    @default(true)
-  themeId       String
-  theme         Theme_Menu @relation(fields: [themeId], references: [id])
-}
-
 model Theme_Menu {
-  id          String    @id @default(uuid())
-  name        String    @db.VarChar(50)
-  ressourceId String
-  menus       Menu[]
-  ressource   Ressource @relation(fields: [ressourceId], references: [id])
+  id            String    @id @default(uuid())
+  name          String    @db.VarChar(50)
+  display_order Int       @default(0)
+  isVisible     Boolean   @default(true)
+  ressourceId   String?
+  ressource     Ressource? @relation(fields: [ressourceId], references: [id])
 }
 
 model Ressource {
