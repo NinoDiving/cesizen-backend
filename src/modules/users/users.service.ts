@@ -1,23 +1,30 @@
 import { Injectable } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserAlreadyExistsException, UserNotFoundException } from './exceptions/users.exceptions';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const defaultRole = await this.prismaService.role.findFirst({
-      where: { name: 'user' },
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { email: createUserDto.email }
     });
+    
+    if (existingUser) {
+      throw new UserAlreadyExistsException();
+    }
 
     return await this.prismaService.user.create({
       data: {
-        ...createUserDto,
-        role: {
-          connect: { id: defaultRole?.id },
-        },
+        last_name: createUserDto.last_name,
+        first_name: createUserDto.first_name,
+        email: createUserDto.email,
+        password: createUserDto.password,
+        role: Role.MEMBER,
       },
     });
   }
@@ -27,18 +34,27 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findUnique({
       where: { id },
     });
+    if (!user) {
+      throw new UserNotFoundException(id);
+    }
+    return user;
   }
 
   async getUserByEmail(email: string) {
-    return await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findUnique({
       where: { email },
     });
+    if (!user) {
+      throw new UserNotFoundException(email);
+    }
+    return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async updateProfile(id: string, updateUserDto: UpdateUserDto) {
+    await this.findOne(id);
     return await this.prismaService.user.update({
       where: { id },
       data: updateUserDto,
@@ -46,8 +62,40 @@ export class UsersService {
   }
 
   async remove(id: string) {
+    await this.findOne(id);
     return await this.prismaService.user.delete({
       where: { id },
+    });
+  }
+
+  async createAdmin(createUserDto: CreateUserDto) {
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { email: createUserDto.email }
+    });
+    if (existingUser) {
+      throw new UserAlreadyExistsException();
+    }
+    return await this.prismaService.user.create({
+      data: {
+        ...createUserDto,
+        role: Role.ADMIN,
+      },
+    });
+  }
+
+  async suspend(id: string) {
+    await this.findOne(id);
+    return await this.prismaService.user.update({
+      where: { id },
+      data: { isSuspend: true },
+    });
+  }
+
+  async activate(id: string) {
+    await this.findOne(id);
+    return await this.prismaService.user.update({
+      where: { id },
+      data: { isSuspend: false },
     });
   }
 }
