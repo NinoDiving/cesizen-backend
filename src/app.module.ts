@@ -7,6 +7,8 @@ import { ActivitiesModule } from './modules/activities/activities.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { ThemesModule } from './modules/themes/themes.module';
+import { RessourcesModule } from './modules/ressources/ressources.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
@@ -29,6 +31,8 @@ import { JwtModule } from '@nestjs/jwt';
     UsersModule,
     ActivitiesModule,
     AdminModule,
+    ThemesModule,
+    RessourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
