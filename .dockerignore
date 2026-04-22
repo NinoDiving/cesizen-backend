@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+Dockerfile
+.dockerignore
+docker-compose.yml
+.git
+.gitignore
+npm-debug.log
+pnpm-debug.log
+yarn-debug.log
+yarn-error.log
+README.md
+test
+coverage
