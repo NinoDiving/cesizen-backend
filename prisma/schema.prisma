@@ -6,21 +6,20 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  MEMBER
+  ADMIN
+}
+
 model User {
   id         String          @id @default(uuid())
   first_name String          @db.VarChar(50)
   last_name  String          @db.VarChar(50)
   email      String          @unique @db.VarChar(100)
+  password   String          // Nouveau champ pour l'auth locale
   isSuspend  Boolean         @default(false)
-  roleId     String
-  role       Role            @relation(fields: [roleId], references: [id])
+  role       Role            @default(MEMBER)
   favorites  User_Activity[]
-}
-
-model Role {
-  id    String @id @default(uuid())
-  name  String @db.VarChar(40)
-  users User[]
 }
 
 model Activity {
@@ -31,7 +30,7 @@ model Activity {
   url         String          @db.VarChar(255)
   isSuspend   Boolean         @default(false)
   created_at  DateTime        @default(now())
-  updated_at  DateTime
+  updated_at  DateTime        @updatedAt
   typeId      String
   type        Type_Activity   @relation(fields: [typeId], references: [id])
   favoritedBy User_Activity[]
@@ -77,7 +76,7 @@ model Ressource {
   content        String
   url            String         @db.VarChar(255)
   created_at     DateTime       @default(now())
-  updated_at     DateTime
+  updated_at     DateTime       @updatedAt
   typeId         String
   illustrationId String
   illustration   Illustration   @relation(fields: [illustrationId], references: [id])
