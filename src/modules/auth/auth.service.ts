@@ -1,57 +1,62 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { supabase } from 'config/supabase';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { 
+  InvalidCredentialsException, 
+  RegistrationFailedException 
+} from './exceptions/auth.exceptions';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async authenticate(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
-    const user = await this.userService.getUserByEmail(email);
+    const user = await this.userService.getUserByEmail(email).catch(() => null);
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new InvalidCredentialsException();
     }
 
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new InvalidCredentialsException();
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    
     return {
-      userId: data.user?.id,
+      userId: user.id,
       firstName: user.first_name,
       lastName: user.last_name,
-      accessToken: data.session?.access_token,
-      refreshToken: data.session?.refresh_token,
+      accessToken: await this.jwtService.signAsync(payload),
     };
   }
 
   async register(createUserDto: CreateUserDto) {
-    const { data, error } = await supabase.auth.signUp({
-      email: createUserDto.email,
-      password: createUserDto.password,
-      options: {
-        data: {
-          first_name: createUserDto.first_name,
-          last_name: createUserDto.last_name,
-        },
-      },
-    });
+    try {
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    if (error) {
-      throw new UnauthorizedException('Registration failed', error.message);
+      const user = await this.userService.create({
+        ...createUserDto,
+        password: hashedPassword,
+      });
+
+      const payload = { sub: user.id, email: user.email, role: user.role };
+
+      return {
+        userId: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        accessToken: await this.jwtService.signAsync(payload),
+      };
+    } catch (error) {
+      throw new RegistrationFailedException(error.message);
     }
-    return {
-      userId: data.user?.id,
-      firstName: createUserDto.first_name,
-      lastName: createUserDto.last_name,
-      accessToken: data.session?.access_token,
-      refreshToken: data.session?.refresh_token,
-    };
   }
 }
