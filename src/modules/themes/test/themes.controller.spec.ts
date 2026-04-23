@@ -7,7 +7,7 @@ import { TestDbHelper } from '../../../utils/test-db-helper';
 import { ThemesController } from '../themes.controller';
 import { ThemesService } from '../themes.service';
 
-describe('ThemesController (Integration HTTP)', () => {
+describe('ThemesController', () => {
   let app: INestApplication;
   let dbHelper: TestDbHelper;
   let prisma: PrismaClient;

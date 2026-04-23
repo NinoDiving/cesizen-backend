@@ -5,7 +5,7 @@ import { TestDbHelper } from '../../../utils/test-db-helper';
 import { ActivitiesService } from '../activities.service';
 import { CreateActivitiesDto } from '../dto/createActivities.dto';
 
-describe('ActivitiesService (Integration)', () => {
+describe('ActivitiesService', () => {
   let service: ActivitiesService;
   let dbHelper: TestDbHelper;
   let prisma: PrismaClient;

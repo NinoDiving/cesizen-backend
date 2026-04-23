@@ -7,7 +7,7 @@ import { TestDbHelper } from '../../../utils/test-db-helper';
 import { RessourcesController } from '../ressources.controller';
 import { RessourcesService } from '../ressources.service';
 
-describe('RessourcesController (Integration HTTP)', () => {
+describe('RessourcesController', () => {
   let app: INestApplication;
   let dbHelper: TestDbHelper;
   let prisma: PrismaClient;

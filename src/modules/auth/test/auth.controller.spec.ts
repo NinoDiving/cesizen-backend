@@ -7,7 +7,7 @@ import { TestDbHelper } from '../../../utils/test-db-helper';
 import { PrismaClient } from '@prisma/client';
 import { JwtModule } from '@nestjs/jwt';
 
-describe('AuthController (Local Authentication)', () => {
+describe('AuthController', () => {
   let controller: AuthController;
   let dbHelper: TestDbHelper;
   let prisma: PrismaClient;

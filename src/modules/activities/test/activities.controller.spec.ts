@@ -9,7 +9,7 @@ import { ActivitiesController } from '../activities.controller';
 import { ActivitiesService } from '../activities.service';
 import { UsersService } from '../../users/users.service';
 
-describe('ActivitiesController (Integration HTTP)', () => {
+describe('ActivitiesController', () => {
   let app: INestApplication;
   let service: ActivitiesService;
   let dbHelper: TestDbHelper;

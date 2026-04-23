@@ -21,7 +21,7 @@ services:
       target: development
     container_name: cesizen-backend
     ports:
-      - "3000:3000"
+      - "3010:3010"
     volumes:
       - .:/app
       - /app/node_modules

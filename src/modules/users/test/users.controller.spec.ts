@@ -8,7 +8,7 @@ import { TestDbHelper } from '../../../utils/test-db-helper';
 import { UsersController } from '../users.controller';
 import { UsersService } from '../users.service';
 
-describe('UsersController (Integration HTTP)', () => {
+describe('UsersController', () => {
   let app: INestApplication;
   let dbHelper: TestDbHelper;
   let prisma: PrismaClient;

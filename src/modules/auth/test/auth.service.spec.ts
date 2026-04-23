@@ -7,7 +7,7 @@ import { UsersService } from '../../users/users.service';
 import { AuthService } from '../auth.service';
 import { UserSuspendedException } from '../exceptions/auth.exceptions';
 
-describe('AuthService (Local Authentication)', () => {
+describe('AuthService', () => {
   let authService: AuthService;
   let prisma: PrismaClient;
   let dbHelper: TestDbHelper;

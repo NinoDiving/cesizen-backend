@@ -4,7 +4,7 @@ import { PrismaService } from '../../../../prisma/prisma.service';
 import { TestDbHelper } from '../../../utils/test-db-helper';
 import { PrismaClient } from '@prisma/client';
 
-describe('ThemesService (Integration)', () => {
+describe('ThemesService', () => {
   let service: ThemesService;
   let dbHelper: TestDbHelper;
   let prisma: PrismaClient;

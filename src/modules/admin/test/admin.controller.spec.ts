@@ -11,7 +11,7 @@ import { ThemesService } from '../../themes/themes.service';
 import { UsersService } from '../../users/users.service';
 import { AdminController } from '../admin.controller';
 
-describe('AdminController (Integration HTTP)', () => {
+describe('AdminController', () => {
   let app: INestApplication;
   let usersService: UsersService;
   let activitiesService: ActivitiesService;
