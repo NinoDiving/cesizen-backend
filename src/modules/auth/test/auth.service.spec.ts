@@ -5,6 +5,7 @@ import { PrismaService } from '../../../../prisma/prisma.service';
 import { TestDbHelper } from '../../../utils/test-db-helper';
 import { UsersService } from '../../users/users.service';
 import { AuthService } from '../auth.service';
+import { UserSuspendedException } from '../exceptions/auth.exceptions';
 
 describe('AuthService (Local Authentication)', () => {
   let authService: AuthService;
@@ -66,6 +67,15 @@ describe('AuthService (Local Authentication)', () => {
 
     it('should fail with wrong password', async () => {
       await expect(authService.authenticate(testEmail, 'wrong')).rejects.toThrow();
+    });
+
+    it('should fail if user is suspended', async () => {
+      await prisma.user.update({
+        where: { email: testEmail },
+        data: { isSuspend: true },
+      });
+
+      await expect(authService.authenticate(testEmail, testPassword)).rejects.toThrow(UserSuspendedException);
     });
   });
 });

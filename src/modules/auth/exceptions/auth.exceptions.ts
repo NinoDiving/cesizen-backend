@@ -17,3 +17,9 @@ export class RegistrationFailedException extends UnauthorizedException {
     super(`Échec de l'inscription : ${message || 'Erreur inconnue'}`);
   }
 }
+
+export class UserSuspendedException extends UnauthorizedException {
+  constructor() {
+    super('Votre compte a été suspendu. Veuillez contacter un administrateur.');
+  }
+}

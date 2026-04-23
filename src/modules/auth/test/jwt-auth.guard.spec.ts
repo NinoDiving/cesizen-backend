@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { UsersService } from '../../users/users.service';
+import { UserSuspendedException } from '../exceptions/auth.exceptions';
 
 describe('JwtAuthGuard', () => {
   let guard: JwtAuthGuard;
@@ -9,6 +11,10 @@ describe('JwtAuthGuard', () => {
 
   const mockJwtService = {
     verifyAsync: jest.fn(),
+  };
+
+  const mockUsersService = {
+    findOne: jest.fn(),
   };
 
   const createMockContext = (authHeader?: string): ExecutionContext => {
@@ -32,6 +38,10 @@ describe('JwtAuthGuard', () => {
           provide: JwtService,
           useValue: mockJwtService,
         },
+        {
+          provide: UsersService,
+          useValue: mockUsersService,
+        },
       ],
     }).compile();
 
@@ -43,15 +53,25 @@ describe('JwtAuthGuard', () => {
     expect(guard).toBeDefined();
   });
 
-  it('should return true when token is valid', async () => {
+  it('should return true when token is valid and user not suspended', async () => {
     const payload = { sub: 'user-id', email: 'test@test.com', role: 'ADMIN' };
     mockJwtService.verifyAsync.mockResolvedValue(payload);
+    mockUsersService.findOne.mockResolvedValue({ id: 'user-id', isSuspend: false });
     
     const context = createMockContext('Bearer valid-token');
     const result = await guard.canActivate(context);
     
     expect(result).toBe(true);
     expect(context.switchToHttp().getRequest()['user']).toEqual(payload);
+  });
+
+  it('should throw UserSuspendedException when user is suspended', async () => {
+    const payload = { sub: 'user-id', email: 'test@test.com', role: 'ADMIN' };
+    mockJwtService.verifyAsync.mockResolvedValue(payload);
+    mockUsersService.findOne.mockResolvedValue({ id: 'user-id', isSuspend: true });
+    
+    const context = createMockContext('Bearer valid-token');
+    await expect(guard.canActivate(context)).rejects.toThrow(UserSuspendedException);
   });
 
   it('should throw UnauthorizedException when token is missing', async () => {

@@ -5,7 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { 
   InvalidCredentialsException, 
-  RegistrationFailedException 
+  RegistrationFailedException,
+  UserSuspendedException
 } from './exceptions/auth.exceptions';
 
 @Injectable()
@@ -20,6 +21,10 @@ export class AuthService {
 
     if (!user) {
       throw new InvalidCredentialsException();
+    }
+
+    if (user.isSuspend) {
+      throw new UserSuspendedException();
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
