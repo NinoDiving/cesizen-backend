@@ -1,5 +1,4 @@
 services:
-  # Base de données de développement
   db:
     image: postgres:16-alpine
     container_name: cesizen-db
@@ -19,24 +18,24 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
     container_name: cesizen-backend
     ports:
       - "3000:3000"
     volumes:
       - .:/app
       - /app/node_modules
-    command: pnpm run start:dev
     depends_on:
       - db
     env_file:
       - .env.local
     environment:
-      # Le backend dans Docker utilise le nom du service 'db' pour se connecter
+      - NODE_ENV=development
+      - CI=true
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/cesizen
     networks:
       - cesizen-network
 
-  # Base de données pour les tests automatisés
   db-test:
     image: postgres:16-alpine
     container_name: cesizen-db-test
