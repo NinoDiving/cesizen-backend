@@ -1,98 +1,83 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# CesiZen Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend de l'application CesiZen, développé avec NestJS, Prisma et PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Stack Technique
 
-## Description
+*   **Framework** : [NestJS](https://nestjs.com/) (Node.js)
+*   **Base de données** : [PostgreSQL](https://www.postgresql.org/)
+*   **ORM** : [Prisma](https://www.prisma.io/)
+*   **Authentification** : JWT (JSON Web Token) avec Passport.js
+*   **Validation** : Class-validator & Class-transformer
+*   **Documentation API** : Swagger / OpenAPI
+*   **Conteneurisation** : Docker
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🛠️ Installation et Lancement
 
-## Project setup
+### Pré-requis
+*   Node.js (v20+)
+*   pnpm
+*   Docker
 
+### 1. Configuration de l'environnement
+Copiez le fichier `.env.local` en `.env` et ajustez les variables si nécessaire :
 ```bash
-$ pnpm install
+cp .env.local .env.test .env
 ```
 
-## Compile and run the project
-
+### 2. Lancement du projet
+Lancez l'ensemble de l'infrastructure (Base de données + Backend) :
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+docker-compose up --build
 ```
 
-## Run tests
-
+### 3. Initialisation de la base de données (au premier lancement)
+Une fois les conteneurs lancés, appliquez le schéma Prisma à votre base de données :
 ```bash
-# unit tests
-$ pnpm run test
+pnpm run prisma:push
+```
+L'API sera disponible sur `http://localhost:3001` (selon votre config). La documentation Swagger est accessible sur `http://localhost:3001/api`.
 
-# e2e tests
-$ pnpm run test:e2e
+## 🧪 Documentation des Tests
 
-# test coverage
-$ pnpm run test:cov
+Le projet utilise une suite de tests complète organisée par module pour garantir la fiabilité du code et de l'API.
+
+### 📂 Structure des Tests
+Tous les tests par module sont regroupés dans un dossier unique pour plus de clarté :
+
+```text
+src/modules/[module]/test/
+├── [module].service.spec.ts    # Logique métier et Persistance (Intégration DB)
+├── [module].controller.spec.ts # Routes API et Sécurité (Intégration HTTP)
+└── [guard/pipe].spec.ts        # Unités isolées (Tests Unitaires Mocks)
+test/
+└── [feature].e2e-spec.ts       # Flux complets (Bout en bout)
 ```
 
-## Deployment
+#### 📋 Détails des Tests par Module
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+| Module | Fichier | Type | Cas de test | Sortie attendue |
+| :--- | :--- | :--- | :--- | :--- |
+| **Auth** | `auth.service.spec.ts` | Intégration | Inscription / Connexion | JWT + Persistance BDD |
+| | `jwt-auth.guard.spec.ts` | Unitaire | Validation Token / Suspension | `true` ou `401 Unauthorized` |
+| | `roles.guard.spec.ts` | Unitaire | Vérification RBAC | `true` ou `403 Forbidden` |
+| **Users** | `users.service.spec.ts` | Intégration | Création Admin / Suspension | État BDD mis à jour |
+| **Activities**| `activities.service.spec.ts`| Intégration | CRUD + Favoris | Persistance correcte |
+| **Admin** | `admin.controller.spec.ts` | Intégration | Gestion des ressources | Délégation aux services |
+| **Ressources**| `ressources.service.spec.ts`| Intégration | CRUD Ressources | Données persistées |
+| **Themes** | `themes.service.spec.ts` | Intégration | Listing et visibilité | Thèmes filtrés et ordonnés |
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+#### 🚀 Exécution des Tests
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# Lancer les tests par module (Service + Controller)
+pnpm run test
+
+# Lancer les tests E2E
+pnpm run test:e2e
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🔒 Sécurité
+*   **JWT** : Toutes les routes sensibles sont protégées par un `JwtAuthGuard`.
+*   **RBAC** : Les routes d'administration sont protégées par un `RolesGuard` (`@Roles(Role.ADMIN)`).
+*   **Suspension** : Un utilisateur suspendu est immédiatement déconnecté et ne peut plus utiliser son token, grâce à une vérification en temps réel dans le Guard.
