@@ -7,7 +7,7 @@ import * as path from 'path';
 import { Client, Pool } from 'pg';
 import { PrismaService } from '../../prisma/prisma.service';
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env.test') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.test'), quiet: true });
 
 const TEMPLATE_DB_NAME = 'cesizen_template';
 
@@ -28,13 +28,19 @@ export class TestDbHelper {
     const res = await client.query(`SELECT 1 FROM pg_database WHERE datname = '${TEMPLATE_DB_NAME}'`);
     
     if (res.rowCount === 0) {
-      await client.query(`CREATE DATABASE "${TEMPLATE_DB_NAME}"`);
-      const urlObj = new URL(baseDbUrl);
-      urlObj.pathname = `/${TEMPLATE_DB_NAME}`;
-      execSync('npx prisma db push --accept-data-loss', { 
-        env: { ...process.env, DATABASE_URL: urlObj.toString() },
-        stdio: 'inherit'
-      });
+      try {
+        await client.query(`CREATE DATABASE "${TEMPLATE_DB_NAME}"`);
+        const urlObj = new URL(baseDbUrl);
+        urlObj.pathname = `/${TEMPLATE_DB_NAME}`;
+        execSync('npx prisma db push --accept-data-loss', { 
+          env: { ...process.env, DATABASE_URL: urlObj.toString() },
+          stdio: 'inherit'
+        });
+      } catch (err: any) {
+        if (err.code !== '42P04') {
+          throw err;
+        }
+      }
     }
     await client.end();
   }
