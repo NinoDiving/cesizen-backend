@@ -7,6 +7,7 @@ import { PrismaService } from '../../../../prisma/prisma.service';
 import { TestDbHelper } from '../../../utils/test-db-helper';
 import { ActivitiesController } from '../activities.controller';
 import { ActivitiesService } from '../activities.service';
+import { UsersService } from '../../users/users.service';
 
 describe('ActivitiesController (Integration HTTP)', () => {
   let app: INestApplication;
@@ -28,6 +29,12 @@ describe('ActivitiesController (Integration HTTP)', () => {
           provide: JwtService,
           useValue: {
             verifyAsync: jest.fn(),
+          },
+        },
+        {
+          provide: UsersService,
+          useValue: {
+            findOne: jest.fn().mockResolvedValue({ isSuspend: false }),
           },
         },
       ],
