@@ -6,14 +6,14 @@ import {
   Param,
   Patch,
   Post,
-  Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('users')
 @Controller('users')
@@ -24,6 +24,14 @@ export class UsersController {
   @ApiOperation({ summary: 'Créer un utilisateur' })
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('me')
+  @ApiOperation({ summary: 'Récupérer mon profil' })
+  getMe(@CurrentUser() user: {sub: string, email: string}) {
+    return this.usersService.getProfile(user.sub);
   }
 
   @Get()

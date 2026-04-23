@@ -43,6 +43,12 @@ export class UsersService {
     return user;
   }
 
+  async getProfile(id: string) {
+    const user = await this.findOne(id);
+    const { password, ...result } = user;
+    return result;
+  }
+
   async getUserByEmail(email: string) {
     const user = await this.prismaService.user.findUnique({
       where: { email },
